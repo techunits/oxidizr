@@ -1,7 +1,3 @@
-import json
-import sys
-from datetime import datetime
-import pytz
 from twitter import OAuth, TwitterStream
 from dateutil import parser
 
@@ -9,7 +5,7 @@ from django.core.management.base import BaseCommand, CommandError
 from django.conf import settings
 from django.db.utils import IntegrityError
 
-from apps.twitter.models import Keyword, Tweet, Handle, get_weight
+from apps.twitter.models import Keyword, Tweet, Account
 
 
 class Command(BaseCommand):
@@ -30,7 +26,7 @@ class Command(BaseCommand):
                 tweet = tweet['retweeted_status']
             user = tweet['user']
 
-            author = Handle(
+            author = Account(
                 twitter_id=user['id_str'],
                 screen_name=user['screen_name'],
                 name=user['name'],
@@ -52,14 +48,14 @@ class Command(BaseCommand):
                 try:
                     author.save()
                 except IntegrityError:
-                    author = Handle.objects.get(twitter_id=user['id_str'])
+                    author = Account.objects.get(twitter_id=user['id_str'])
 
                 mentions = list()
 
                 if tweet['entities']['user_mentions']:
                     for user in tweet['entities']['user_mentions']:
                         try:
-                            (mention, created) = Handle.objects.get_or_create(
+                            (mention, created) = Account.objects.get_or_create(
                                 twitter_id=user['id_str'],
                                 screen_name=user['screen_name'],
                                 name=user['name'],
@@ -71,7 +67,7 @@ class Command(BaseCommand):
                                 is_verified=user['verified'] if 'verified' in user else False
                             )
                         except IntegrityError:
-                            mention = Handle.objects.get(twitter_id=user['id_str'])
+                            mention = Account.objects.get(twitter_id=user['id_str'])
                         mentions.append(mention)
 
                 try:

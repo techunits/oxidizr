@@ -24,7 +24,7 @@ DEBUG = True
 
 TEMPLATE_DEBUG = True
 
-ALLOWED_HOSTS = []
+ALLOWED_HOSTS = ['oxidizr.com', 'oxidizr.com:8000', 'localhost', 'localhost:8000']
 
 
 # Application definition
@@ -46,10 +46,13 @@ INSTALLED_APPS = (
     'south',
 
     # Custom apps
+    'accounts',
+    'apps.keywords',
     'apps.meetup',
     'apps.websites',
     'apps.content',
-    'apps.twitter'
+    'apps.twitter',
+    'apps.affiliates',
 )
 
 MIDDLEWARE_CLASSES = (
@@ -96,6 +99,10 @@ USE_TZ = True
 # https://docs.djangoproject.com/en/1.6/howto/static-files/
 
 STATIC_URL = '/static/'
+
+STATIC_ROOT = os.path.join(BASE_DIR, 'collected', 'static')
+
+AUTH_USER_MODEL = 'accounts.User'
 
 try:
     from local_settings import *

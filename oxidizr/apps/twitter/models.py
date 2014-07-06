@@ -1,6 +1,7 @@
 import math
 
 from django.db import models
+from django.conf import settings
 
 
 def get_weight(follower_count=1, following_count=1, status_count=1, listed_in_count=1, is_verified=False):
@@ -23,18 +24,19 @@ def get_weight(follower_count=1, following_count=1, status_count=1, listed_in_co
 
 
 class Tweet(models.Model):
-    author = models.ForeignKey('twitter.Handle', blank=False, related_name='statuses')
+    author = models.ForeignKey('twitter.Account', blank=False, related_name='statuses')
 
     text = models.CharField(max_length=254, blank=False, null=False)
     tweet_id = models.CharField(max_length=100, unique=True)
-    created_at = models.DateTimeField(blank=False, null=False)
 
-    mentions = models.ManyToManyField('twitter.Handle', related_name='+')
+    mentions = models.ManyToManyField('twitter.Account', related_name='mentioned_tweets')
 
     favorite_count = models.PositiveIntegerField(default=0)
     retweet_count = models.PositiveIntegerField(default=0)
 
     weight = models.PositiveIntegerField(default=0)
+
+    created_at = models.DateTimeField(blank=False, null=False)
 
     def view_tweet(self):
         return '<a href="https://twitter.com/%s/statuses/%s" target="_blank">View</a>' %\
@@ -51,7 +53,7 @@ class Tweet(models.Model):
                (self.author.screen_name, self.tweet_id)
 
 
-class Handle(models.Model):
+class Account(models.Model):
     twitter_id = models.CharField(max_length=100, unique=True)
     screen_name = models.CharField(max_length=60, blank=False, null=False)
     name = models.CharField(max_length=140, blank=False, null=False)
@@ -70,13 +72,9 @@ class Handle(models.Model):
         if not self.weight:
             self.weight = get_weight(self.follower_count, self.following_count,
                                      self.status_count, self.listed_in_count, self.is_verified)
-        super(Handle, self).save(*args, **kwargs)
+        super(Account, self).save(*args, **kwargs)
 
     def get_weight(self):
         return get_weight(self.follower_count, self.following_count,
                           self.status_count, self.listed_in_count, self.is_verified)
     get_weight.short_description = 'Weight'
-
-
-class Keyword(models.Model):
-    term = models.CharField(max_length=50, blank=False, null=False)
