@@ -27,11 +27,14 @@ def strip_tags(html):
     return s.get_data()
 
 
-def generate_random_string(length, stringset=string.ascii_letters+string.digits):
+def generate_random_string(length, stringset=None):
     '''
     Returns a string with `length` characters chosen from `stringset`
     >>> len(generate_random_string(20)) == 20
     '''
+    if not stringset:
+        stringset = string.ascii_uppercase.replace('I', '').replace('O', '') +\
+                    string.digits.replace('0', '').replace('1', '')
     return ''.join([random.choice(stringset) for n in range(length)])
 
 
@@ -81,3 +84,12 @@ def custom_template_constants(request):
 
         DATETIME_FORMAT_TEMPLATE=settings.DATETIME_FORMAT_TEMPLATE
     )
+
+
+def get_client_ip(request):
+    x_forwarded_for = request.META.get('HTTP_X_FORWARDED_FOR')
+    if x_forwarded_for:
+        ip = x_forwarded_for.split(',')[0]
+    else:
+        ip = request.META.get('REMOTE_ADDR')
+    return ip

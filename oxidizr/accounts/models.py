@@ -1,9 +1,9 @@
 # Imports from system libraries
 import re
-import random
 
 # Imports from Django
 from django.db import models
+from django.conf import settings
 from django.contrib.auth.models import AbstractBaseUser, UserManager
 from django.utils.translation import ugettext_lazy as _
 from django.core.urlresolvers import reverse_lazy
@@ -11,7 +11,7 @@ from django.contrib.contenttypes.models import ContentType
 from django.core import validators
 
 # Imports from custom apps
-from apps.common.utils import email
+from apps.common.utils import email, generate_random_string
 
 
 class User(AbstractBaseUser):
@@ -52,11 +52,12 @@ class User(AbstractBaseUser):
     is_email_verified = models.BooleanField(default=False, blank=False, null=False)
 
     # Dates and Times
-    verification_code = models.CharField(max_length=50, null=True, blank=True)
     date_joined = models.DateTimeField(auto_now_add=True)
     date_modified = models.DateTimeField(auto_now=True)
-    created_from_ip = models.CharField(max_length=50, null=True, blank=True)
-    last_activity_checked_at = models.DateTimeField(null=True, blank=True)
+    notifications_checked_at = models.DateTimeField(null=True, blank=True)
+
+    # IP address log
+    created_from_ip = models.GenericIPAddressField(null=True, blank=True)
 
     objects = UserManager()
 
@@ -86,22 +87,74 @@ class User(AbstractBaseUser):
     def has_module_perms(self, app_label):
         return True
 
-    def send_verification_email(self, rehash=False):
-        if not self.activation_code or rehash:
-            self.activation_code = random.randint(111111, 999999)
-            self.save()
-        context = dict(
-            activation_code=self.activation_code,
-            first_name=self.first_name
-        )
-        email(
-            recipient=[self.email],
-            context=context,
-            template_name='activate_email'
-        )
-
     def __unicode__(self):
         return u'%s' % self.username
 
     def __str__(self):
         return '%s' % self.username
+
+
+class EmailVerificationToken(models.Model):
+    """
+    This model holds email verification tokens for verifying email addresses.
+    We store the email address since we want to have the possibility of multiple email addresses.
+    """
+    email = models.EmailField(unique=True)
+    owner = models.ForeignKey(settings.AUTH_USER_MODEL, blank=False, null=False, related_name='+')
+    token = models.CharField(max_length=50, null=True, blank=True, db_index=True)
+
+    created_at = models.DateTimeField(auto_now_add=True, blank=False, null=False)
+    verified_at = models.DateTimeField(blank=True, null=True)
+
+    verified_from_ip = models.GenericIPAddressField(blank=True, null=True)
+
+    def __unicode__(self):
+        return u'%s' % self.email
+
+    def __str__(self):
+        return '%s' % self.email
+
+    def generate_token(self):
+        self.token = generate_random_string(8).upper()
+        self.save()
+
+    def send_email(self, regenerate=False):
+        if not self.token or regenerate:
+            self.generate_token()
+        context = dict(
+            activation_code=self.token,
+            first_name=self.first_name
+        )
+        email(
+            recipient=[self.email],
+            context=context,
+            template_name='email_verification'
+        )
+
+
+class PasswordResetToken(models.Model):
+    owner = models.ForeignKey(settings.AUTH_USER_MODEL, blank=False, null=False)
+    token = models.CharField(max_length=50, null=True, blank=True, db_index=True)
+
+    created_at = models.DateTimeField(auto_now_add=True, blank=False, null=False)
+    reset_at = models.DateTimeField(blank=True, null=True)
+
+    reset_from_ip = models.GenericIPAddressField(blank=True, null=True)
+
+    def generate_token(self):
+        self.token = generate_random_string(12).upper()
+        self.save()
+
+    def send_email(self, regenerate=False):
+        if not self.token or regenerate:
+            self.generate_token()
+
+        context = dict(
+            activation_code=self.token,
+            first_name=self.first_name
+        )
+        email(
+            recipient=[self.email],
+            context=context,
+            template_name='password_reset'
+        )

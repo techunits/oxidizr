@@ -24,17 +24,16 @@ DEBUG = True
 
 TEMPLATE_DEBUG = True
 
-ALLOWED_HOSTS = ['oxidizr.com', 'oxidizr.com:8000', 'localhost', 'localhost:8000']
+ALLOWED_HOSTS = ['oxidizr.com', 'oxr.local']
 
 
 # Application definition
 
 INSTALLED_APPS = (
     # This has to be before django.contrib.admin
-    # http://django-grappelli.readthedocs.org/en/latest/quickstart.html#installation
-    # 'grappelli',
+    # 'grappelli',  # http://django-grappelli.readthedocs.org/en/latest/quickstart.html#installation
 
-    # Regular django apps
+    # Core Django apps
     'django.contrib.admin',
     'django.contrib.auth',
     'django.contrib.contenttypes',
@@ -43,7 +42,8 @@ INSTALLED_APPS = (
     'django.contrib.staticfiles',
 
     # Third party apps
-    'south',
+    'crispy_forms',  # http://django-crispy-forms.readthedocs.org/en/latest/
+    'braces',  # http://django-braces.readthedocs.org/en/v1.4.0/
 
     # Custom apps
     'accounts',
@@ -94,15 +94,49 @@ USE_L10N = True
 
 USE_TZ = True
 
+TEMPLATE_DIRS = (
+    # Don't forget to use absolute paths, not relative paths.
+    os.path.join(BASE_DIR, 'templates'),
+)
 
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/1.6/howto/static-files/
-
 STATIC_URL = '/static/'
 
+# Absolute path to the directory static files should be collected to.
+# Don't put anything in this directory yourself; store your static files
+# in apps' 'static/' subdirectories and in STATICFILES_DIRS.
+# Example: '/var/www/example.com/static/'
 STATIC_ROOT = os.path.join(BASE_DIR, 'collected', 'static')
 
+# Additional locations of static files
+STATICFILES_DIRS = (
+    os.path.join(BASE_DIR, 'assets', 'static'),
+)
+
 AUTH_USER_MODEL = 'accounts.User'
+
+DATE_FORMAT_PYTHON = '%d/%m/%Y'
+DATE_FORMAT_JS = 'DD/MM/YYYY'
+DATE_FORMAT_TEMPLATE = 'j/m/Y'
+
+TIME_FORMAT_PYTHON = '%I:%M %p'
+TIME_FORMAT_JS = ''
+TIME_FORMAT_TEMPLATE = 'h:i A'
+
+DATETIME_FORMAT_TEMPLATE = '%s %s' % (DATE_FORMAT_TEMPLATE, TIME_FORMAT_TEMPLATE)
+DATETIME_FORMAT_PYTHON = '%s %s' % (DATE_FORMAT_PYTHON, TIME_FORMAT_PYTHON)
+
+# Enable Django to parse date and time in our needed formats
+DATE_INPUT_FORMATS = [DATE_FORMAT_PYTHON]
+TIME_INPUT_FORMATS = [TIME_FORMAT_PYTHON]
+
+# Enable Django to print date and time in our needed formats
+DATE_FORMAT = DATE_FORMAT_TEMPLATE
+TIME_FORMAT = TIME_FORMAT_TEMPLATE
+DATETIME_FORMAT = '%s %s' % (DATE_FORMAT_TEMPLATE, TIME_FORMAT_TEMPLATE)
+
+CRISPY_TEMPLATE_PACK = 'bootstrap3'
 
 try:
     from local_settings import *
