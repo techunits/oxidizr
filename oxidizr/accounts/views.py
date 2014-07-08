@@ -26,7 +26,7 @@ from apps.common.utils import email, get_current_site, get_client_ip
 
 # Explicit imports from this app
 from .forms import LoginForm, RegistrationForm, EmailVerificationForm
-from .models import EmailVerificationToken, PasswordResetToken
+from .models import EmailVerificationCode, PasswordResetCode
 
 
 User = get_user_model()
@@ -90,7 +90,7 @@ class RegistrationView(AnonymousRequiredMixin, FormView):
         user.save()
 
         # Generate an email verification token for this user's email address
-        email_token = EmailVerificationToken()
+        email_token = EmailVerificationCode()
         email_token.email = user.email
         email_token.owner = user
         email_token.save()
@@ -113,6 +113,7 @@ class EmailVerificationView(UserPassesTestMixin, FormView):
     form_class = EmailVerificationForm
     login_url = reverse_lazy('account_profile')
     user = None
+    email_token = None
 
     def get_success_url(self):
         return reverse_lazy('home_page')

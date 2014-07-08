@@ -40,10 +40,12 @@ INSTALLED_APPS = (
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
+    'django.contrib.sites',
 
     # Third party apps
     'crispy_forms',  # http://django-crispy-forms.readthedocs.org/en/latest/
     'braces',  # http://django-braces.readthedocs.org/en/v1.4.0/
+    'post_office',
 
     # Custom apps
     'accounts',
@@ -137,6 +139,10 @@ TIME_FORMAT = TIME_FORMAT_TEMPLATE
 DATETIME_FORMAT = '%s %s' % (DATE_FORMAT_TEMPLATE, TIME_FORMAT_TEMPLATE)
 
 CRISPY_TEMPLATE_PACK = 'bootstrap3'
+
+SITE_ID = 1
+
+DEFAULT_FROM_EMAIL = 'Oxidizr <hello@oxidizr.com>'
 
 try:
     from local_settings import *

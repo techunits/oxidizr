@@ -23,7 +23,7 @@ class User(AbstractBaseUser):
         unique=True,
         help_text=_('30 characters or fewer. Letters, numbers and ./-/_ characters'),
         validators=[
-            validators.RegexValidator(re.compile('^[\w.\-_]+$'), _('Enter a valid username.'), 'invalid')
+            validators.RegexValidator('^[\w.\-_]+$', _('Enter a valid username.'), 'invalid')
         ]
     )
     first_name = models.CharField(_('First Name'), max_length=30, blank=False, null=False)
@@ -94,14 +94,14 @@ class User(AbstractBaseUser):
         return '%s' % self.username
 
 
-class EmailVerificationToken(models.Model):
+class EmailVerificationCode(models.Model):
     """
     This model holds email verification tokens for verifying email addresses.
     We store the email address since we want to have the possibility of multiple email addresses.
     """
     email = models.EmailField(unique=True)
     owner = models.ForeignKey(settings.AUTH_USER_MODEL, blank=False, null=False, related_name='+')
-    token = models.CharField(max_length=50, null=True, blank=True, db_index=True)
+    verification_code = models.CharField(max_length=50, null=True, blank=True, db_index=True)
 
     created_at = models.DateTimeField(auto_now_add=True, blank=False, null=False)
     verified_at = models.DateTimeField(blank=True, null=True)
@@ -114,16 +114,21 @@ class EmailVerificationToken(models.Model):
     def __str__(self):
         return '%s' % self.email
 
+    def save(self, *args, **kwargs):
+        if not self.verification_code:
+            self.verification_code = generate_random_string(8).upper()
+        super(EmailVerificationCode, self).save(*args, **kwargs)
+
     def generate_token(self):
-        self.token = generate_random_string(8).upper()
+        self.verification_code = generate_random_string(8).upper()
         self.save()
 
     def send_email(self, regenerate=False):
-        if not self.token or regenerate:
+        if not self.verification_code or regenerate:
             self.generate_token()
         context = dict(
-            activation_code=self.token,
-            first_name=self.first_name
+            verification_code=self.verification_code,
+            first_name=self.owner.first_name
         )
         email(
             recipient=[self.email],
@@ -132,26 +137,37 @@ class EmailVerificationToken(models.Model):
         )
 
 
-class PasswordResetToken(models.Model):
+class PasswordResetCode(models.Model):
     owner = models.ForeignKey(settings.AUTH_USER_MODEL, blank=False, null=False)
-    token = models.CharField(max_length=50, null=True, blank=True, db_index=True)
+    verification_code = models.CharField(max_length=50, null=True, blank=True, db_index=True)
 
     created_at = models.DateTimeField(auto_now_add=True, blank=False, null=False)
     reset_at = models.DateTimeField(blank=True, null=True)
 
     reset_from_ip = models.GenericIPAddressField(blank=True, null=True)
 
+    def __unicode__(self):
+        return u'%s' % self.owner
+
+    def __str__(self):
+        return '%s' % self.owner
+
+    def save(self, *args, **kwargs):
+        if not self.verification_code:
+            self.verification_code = generate_random_string(8).upper()
+        super(PasswordResetCode, self).save(*args, **kwargs)
+
     def generate_token(self):
-        self.token = generate_random_string(12).upper()
+        self.verification_code = generate_random_string(12).upper()
         self.save()
 
     def send_email(self, regenerate=False):
-        if not self.token or regenerate:
+        if not self.verification_code or regenerate:
             self.generate_token()
 
         context = dict(
-            activation_code=self.token,
-            first_name=self.first_name
+            verification_code=self.verification_code,
+            first_name=self.owner.first_name
         )
         email(
             recipient=[self.email],

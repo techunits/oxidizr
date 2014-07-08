@@ -1,0 +1,11 @@
+{% extends 'skeleton.html' %}{% load i18n %}{% load staticfiles %}
+
+{% block page_container %}
+<div class="container">
+  <div class="row">
+    <div class="col-lg-8 col-lg-offset-2 col-main">
+      {% block main_content %}{% endblock main_content %}
+    </div>
+  </div>
+</div>
+{% endblock page_container %}

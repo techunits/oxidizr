@@ -36,7 +36,6 @@ class RegistrationForm(forms.ModelForm):
     last_name = forms.CharField(required=True, widget=forms.TextInput(attrs={'tabindex': 2}))
     repeat_password = forms.CharField(widget=forms.PasswordInput(attrs={'tabindex': 8}), label=_('Repeat Password'),
                                       required=True)
-    date_of_birth = forms.DateField(input_formats=[settings.DATE_FORMAT_PYTHON])
 
     def __init__(self, *args, **kwargs):
         super(RegistrationForm, self).__init__(*args, **kwargs)
@@ -45,33 +44,33 @@ class RegistrationForm(forms.ModelForm):
         self.helper.layout = Layout(
             Div(
                 Div(
-                    'first_name',
+                    Field('first_name', tabindex=1),
                     css_class='col-sm-6'
                 ),
                 Div(
-                    'last_name',
-                    css_class='col-sm-6'
-                ),
-                css_class='row'
-            ),
-            Div(
-                Div(
-                    'username',
-                    css_class='col-sm-6'
-                ),
-                Div(
-                    'email',
+                    Field('last_name', tabindex=2),
                     css_class='col-sm-6'
                 ),
                 css_class='row'
             ),
             Div(
                 Div(
-                    'password',
+                    Field('username', tabindex=3),
                     css_class='col-sm-6'
                 ),
                 Div(
-                    'repeat_password',
+                    Field('email', tabindex=4),
+                    css_class='col-sm-6'
+                ),
+                css_class='row'
+            ),
+            Div(
+                Div(
+                    Field('password', tabindex=5),
+                    css_class='col-sm-6'
+                ),
+                Div(
+                    Field('repeat_password', tabindex=6),
                     css_class='col-sm-6'
                 ),
                 css_class='row'
@@ -92,9 +91,9 @@ class RegistrationForm(forms.ModelForm):
         model = User
         fields = ('username', 'email', 'first_name', 'last_name', 'password', 'repeat_password')
         widgets = {
-            'username': forms.TextInput(attrs={'tabindex': 3}),
-            'email': forms.TextInput(attrs={'tabindex': 4}),
-            'password': forms.PasswordInput(attrs={'tabindex': 7}),
+            'username': forms.TextInput(),
+            'email': forms.TextInput(),
+            'password': forms.PasswordInput(),
         }
 
     def clean(self):

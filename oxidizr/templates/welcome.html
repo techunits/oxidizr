@@ -1,51 +1,40 @@
-{% load i18n %}{% load staticfiles %}<!DOCTYPE html>
-<html lang="en">
-  <head>
-    <meta charset="utf-8">
-    <meta http-equiv="X-UA-Compatible" content="IE=edge">
-    <meta name="viewport" content="width=device-width, initial-scale=1">
-    <meta name="description" content="">
-    <meta name="author" content="">
-    <link rel="icon" href="">
+{% extends 'skeleton.html' %}{% load i18n %}{% load staticfiles %}
 
-    <title>Cover Template for Bootstrap</title>
+{% block stylesheet_container %}
+{{ block.super }}
+<!-- Custom CSS -->
+<link rel="stylesheet" href="{% static 'stylesheet/welcome.css' %}">
+{% endblock stylesheet_container %}
 
-    <!-- Bootstrap core CSS -->
-    <link rel="stylesheet" href="{% static 'stylesheet/bootstrap.min.css' %}">
-    <link rel="stylesheet" href="{% static 'stylesheet/bootstrap-theme.min.css' %}">
-    <!-- Fontawesome for icon font -->
-    <link rel="stylesheet" href="{% static 'stylesheet/font-awesome.min.css' %}">
-    <!-- Custom CSS -->
-    <link rel="stylesheet" href="{% static 'stylesheet/welcome.css' %}">
-  </head>
+{% block navigation_container %}{% endblock navigation_container %}
 
-  <body>
-    <div class="site-wrapper">
-      <div class="site-wrapper-inner">
-        <div class="cover-container">
-          <div class="masthead clearfix">
-            <div class="inner">
-              <h3 class="masthead-brand">Oxidizr</h3>
-              <ul class="nav masthead-nav">
-                <li class="active"><a href="{% url 'welcome_page' %}">{% trans 'Home' %}</a></li>
-                <li><a href="https://github.com/pixlie/oxidizr">Source</a></li>
-                <li><a href="{% url 'accounts_login' %}">{% trans 'Login' %}</a></li>
-              </ul>
-            </div>
-          </div>
-
-          <div class="inner cover">
-            <h1 class="cover-heading">Rule online marketing</h1>
-            <p class="lead">Oxidizr is the mega app to help you conquer online marketing. Listen to your users, keep track of competitors, find leads - all with ease. An Open Source app that you can host yourself in 5 minutes.</p>
-            <p class="lead">
-              <a href="#" class="btn btn-lg btn-success">Get started</a>
-            </p>
-          </div>
+{% block page_container %}
+<div class="site-wrapper">
+  <div class="site-wrapper-inner">
+    <div class="cover-container">
+      <div class="masthead clearfix">
+        <div class="inner">
+          <h3 class="masthead-brand">Oxidizr</h3>
+          <ul class="nav masthead-nav">
+            <li class="active"><a href="{% url 'welcome_page' %}">{% trans 'Home' %}</a></li>
+            <li><a href="https://github.com/pixlie/oxidizr">Source</a></li>
+            <li><a href="{% url 'accounts_login' %}">{% trans 'Login' %}</a></li>
+          </ul>
         </div>
       </div>
-    </div>
 
-    <!-- JavaScript files -->
-    <!-- Placed at the end of the document so the pages load faster -->
-  </body>
-</html>
+      <div class="inner cover">
+        <h1 class="cover-heading">{% trans 'Rule online marketing' %}</h1>
+        <p class="lead">{% blocktrans %}Oxidizr is the mega app to help you conquer online marketing.
+          Listen to your users, keep track of competitors, find leads - all with ease.
+          An Open Source app that you can host yourself in 5 minutes.{% endblocktrans %}</p>
+        <p class="lead">
+          <a href="#" class="btn btn-lg btn-success">Get started</a>
+        </p>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock page_container %}
+
+{% block javascript_container %}{% endblock javascript_container %}

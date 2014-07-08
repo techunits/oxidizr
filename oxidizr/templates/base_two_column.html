@@ -1,0 +1,51 @@
+{% extends 'skeleton.html' %}{% load i18n %}{% load staticfiles %}
+
+{% block navigation_container %}
+<div class="navbar navbar-default navbar-static-top" role="navigation">
+  <div class="container">
+    <div class="navbar-header">
+      <button type="button" class="navbar-toggle" data-toggle="collapse" data-target=".navbar-collapse">
+        <span class="sr-only">Toggle navigation</span>
+        <span class="icon-bar"></span>
+        <span class="icon-bar"></span>
+        <span class="icon-bar"></span>
+      </button>
+      <a class="navbar-brand" href="#"><i class="fa fa-circle"></i> {% block page_header %}{% endblock page_header %}</a>
+    </div>
+    <div class="navbar-collapse collapse">
+      <ul class="nav navbar-nav navbar-right">
+        <li><a href="#">Startups.fm</a></li>
+        <li><a href="#"><i class="fa fa-gear"></i></a></li>
+        <li><a href="#"><i class="fa fa-user"></i></a></li>
+      </ul>
+      <form class="navbar-form navbar-right">
+        <input type="text" class="form-control" placeholder="Search...">
+      </form>
+    </div>
+  </div>
+</div>
+{% endblock navigation_container %}
+
+{% block page_container %}
+<div class="container-fluid">
+  <div class="row">
+    <div class="col-lg-2">
+      <ul class="nav nav-sidebar">
+        <li class="active"><a href="#">Dashboard</a></li>
+        <li class="active"><a href="#">Keywords</a></li>
+        <li><a href="#">Twitter</a></li>
+        <li><a href="#">Meetup</a></li>
+        <li><a href="#">Web Content</a></li>
+      </ul>
+    </div>
+    <div class="col-lg-10 col-main">
+      {% block main_content %}{% endblock main_content %}
+    </div>
+  </div>
+</div>
+{% endblock page_container %}
+
+{% block javascript_container %}
+{{ block.super }}
+{% block javascript %}{% endblock javascript %}
+{% endblock javascript_container %}

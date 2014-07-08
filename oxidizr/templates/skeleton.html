@@ -1,4 +1,4 @@
-{% load i18n %}{% load staticfiles %}<!DOCTYPE html>
+{% load staticfiles %}<!DOCTYPE html>
 <html lang="en">
   <head>
     <meta charset="utf-8">
@@ -10,14 +10,17 @@
 
     <title>Dashboard Template for Bootstrap</title>
 
+    {% block stylesheet_container %}
     <!-- Bootstrap core CSS -->
     <link rel="stylesheet" href="{% static 'stylesheet/bootstrap.min.css' %}">
     <link rel="stylesheet" href="{% static 'stylesheet/bootstrap-theme.min.css' %}">
     <!-- Fontawesome for icon font -->
     <link rel="stylesheet" href="{% static 'stylesheet/font-awesome.min.css' %}">
+    {% endblock stylesheet_container %}
   </head>
 
   <body>
+    {% block navigation_container %}
     <div class="navbar navbar-default navbar-static-top" role="navigation">
       <div class="container">
         <div class="navbar-header">
@@ -41,27 +44,15 @@
         </div>
       </div>
     </div>
+    {% endblock navigation_container %}
 
-    <div class="container-fluid">
-      <div class="row">
-        <div class="col-lg-2">
-          <ul class="nav nav-sidebar">
-            <li class="active"><a href="#">Dashboard</a></li>
-            <li class="active"><a href="#">Keywords</a></li>
-            <li><a href="#">Twitter</a></li>
-            <li><a href="#">Meetup</a></li>
-            <li><a href="#">Web Content</a></li>
-          </ul>
-        </div>
-        <div class="col-lg-10 col-main">
-          {% block main_content %}{% endblock main_content %}
-        </div>
-      </div>
-    </div>
+    {% block page_container %}{% endblock page_container %}
 
+    {% block javascript_container %}
     <!-- JavaScript files -->
     <!-- Placed at the end of the document so the pages load faster -->
     <script type="application/javascript" src="{% static 'javascript/jquery-1.11.1.min.js' %}"></script>
     <script type="application/javascript" src="{% static 'javascript/bootstrap.min.js' %}"></script>
+    {% endblock javascript_container %}
   </body>
 </html>
