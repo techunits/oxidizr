@@ -33,14 +33,18 @@
           <a class="navbar-brand" href="#"><i class="fa fa-circle"></i> {% block page_header %}{% endblock page_header %}</a>
         </div>
         <div class="navbar-collapse collapse">
+          {% if request.user.is_authenticated %}
           <ul class="nav navbar-nav navbar-right">
-            <li><a href="#">Startups.fm</a></li>
             <li><a href="#"><i class="fa fa-gear"></i></a></li>
-            <li><a href="#"><i class="fa fa-user"></i></a></li>
+            <li><a href="{% url 'accounts_logout' %}"><i class="fa fa-sign-out"></i></a></li>
           </ul>
-          <form class="navbar-form navbar-right">
-            <input type="text" class="form-control" placeholder="Search...">
-          </form>
+          {% else %}
+          <ul class="nav navbar-nav navbar-right">
+            <li><a href="{% url 'welcome_page' %}"><i class="fa fa-home"></i></a></li>
+            <li><a href="{% url 'accounts_register' %}"><i class="fa fa-user"></i></a></li>
+            <li><a href="{% url 'accounts_login' %}"><i class="fa fa-sign-in"></i></a></li>
+          </ul>
+          {% endif %}
         </div>
       </div>
     </div>

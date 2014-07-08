@@ -1,0 +1,11 @@
+{% extends "base_single_column.html" %}{% load i18n %}{% load crispy_forms_tags %}
+
+{% block main_content %}
+  <h1>{% trans 'Verify your email address' %}</h1>
+  <h3>{% blocktrans %}Your email address: {{ email }}{% endblocktrans %}</h3>
+  <div class="alert alert-info">{% blocktrans %}We have sent you an email with a code to verify your email address and activate your account.
+    Please check your email account, including your SPAM folder.{% endblocktrans %}</div>
+  <div class="text-muted">{% trans 'I have not received the email, yet.' %} <a href="{% url 'accounts_email_verification' email_token.id %}?resend=1" class="btn btn-xs btn-danger">{% trans 'Resend Email' %}</a></div>
+  <div class="clearfix">&nbsp;</div>
+  {% crispy form %}
+{% endblock main_content %}
