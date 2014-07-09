@@ -162,17 +162,65 @@ class EmailVerificationForm(forms.Form):
         return code
 
 
-class ResetPasswordForm(forms.ModelForm):
-    verification_code = forms.CharField(help_text=_('The verification code we sent you in email.'))
-    repeat_password = forms.CharField(widget=forms.PasswordInput, label=_('Confirm password'))
-
-    class Meta:
-        model = User
-        fields = ['password', 'repeat_password']
-        widgets = {
-            'password': forms.PasswordInput()
-        }
-
-
 class ForgotPasswordForm(forms.Form):
-    email_address = forms.EmailField()
+    email = forms.EmailField()
+
+    def __init__(self, *args, **kwargs):
+        super(ForgotPasswordForm, self).__init__(*args, **kwargs)
+        self.helper = FormHelper()
+        self.helper.form_id = 'id_form_forgot_password'
+        self.helper.layout = Layout(
+            Div(
+                'email',
+            ),
+            HTML('''<hr class="full">'''),
+            Div(
+                Div(
+                    HTML('''<a href="{% url 'accounts_login' %}"> {{ _('Cancel and login') }}</a>&nbsp;&nbsp;'''),
+                    Submit('submit', _('Continue'), css_class='btn-success btn-lg'),
+                    css_class='pull-right'
+                )
+            )
+        )
+
+
+class ResetPasswordForm(forms.Form):
+    verification_code = forms.CharField(help_text=_('The verification code we sent you in email.'),
+                                        max_length=30, required=True)
+    password = forms.CharField(widget=forms.PasswordInput, label=_('New password'), required=True)
+    repeat_password = forms.CharField(widget=forms.PasswordInput, label=_('Confirm password'), required=True)
+
+    def clean_password(self):
+        return self.cleaned_data['password'].strip()
+
+    def clean_repeat_password(self):
+        return self.cleaned_data['repeat_password'].strip()
+
+    def clean(self):
+        data = super(ResetPasswordForm, self).clean()
+        if data['password'] != data['repeat_password']:
+            raise forms.ValidationError(
+                _('Passwords do not match.'),
+                code='invalid'
+            )
+        return data
+
+    def __init__(self, *args, **kwargs):
+        super(ResetPasswordForm, self).__init__(*args, **kwargs)
+        self.helper = FormHelper()
+        self.helper.form_id = 'id_form_reset_password'
+        self.helper.layout = Layout(
+            Div(
+                'verification_code',
+                'password',
+                'repeat_password',
+            ),
+            HTML('''<hr class="full">'''),
+            Div(
+                Div(
+                    HTML('''<a href="{% url 'accounts_login' %}"> {{ _('Cancel and login') }}</a>&nbsp;&nbsp;'''),
+                    Submit('submit', _('Reset password'), css_class='btn-success btn-lg'),
+                    css_class='pull-right'
+                )
+            )
+        )

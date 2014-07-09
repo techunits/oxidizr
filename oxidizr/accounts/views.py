@@ -26,7 +26,7 @@ from braces.views import UserPassesTestMixin, AnonymousRequiredMixin
 from apps.common.utils import email, get_current_site, get_client_ip
 
 # Explicit imports from this app
-from .forms import LoginForm, RegistrationForm, EmailVerificationForm, ForgotPasswordForm
+from .forms import LoginForm, RegistrationForm, EmailVerificationForm, ForgotPasswordForm, ResetPasswordForm
 from .models import EmailVerificationCode, PasswordResetCode
 
 
@@ -193,86 +193,69 @@ class EmailVerificationView(UserPassesTestMixin, FormView):
             return reverse_lazy('accounts_register')
 
 
-class ForgotPasswordView(AnonymousRequiredMixin, CreateView):
+class ForgotPasswordView(AnonymousRequiredMixin, FormView):
     form_class = ForgotPasswordForm
-    template_name = 'auth/forgot_request.html'
+    template_name = 'accounts/forgot_password.html'
+    password_token = None
 
     def get_success_url(self):
-        return reverse_lazy('login')
+        return reverse_lazy('accounts_reset_password', args=(self.password_token.id,))
 
     def form_valid(self, form):
-        forgot_password = form.save(commit=False)
+        email_address = form.cleaned_data['email']
 
         try:
-            user = User.objects.get(email=forgot_password.email)
+            user = User.objects.get(email=email_address)
         except User.DoesNotExist:
             form._errors['email'] = ErrorList([_('This email is not registered with us.')])
             context = self.get_context_data(form=form)
             return self.render_to_response(context)
 
-        forgot_password.token = uuid.uuid4().hex
-        forgot_password.save()
-        domain = get_current_site().domain
-        context = dict(
-            reset_link='http://%s%s' %
-                       (domain, reverse_lazy('reset-password', kwargs={'reset_code': forgot_password.token}))
-        )
-        email(
-            recipient=[forgot_password.email],
-            context=context,
-            template_name='reset_password',
-        )
+        password_token = PasswordResetCode()
+        password_token.owner = user
+        password_token.save()
+        password_token.send_email()
+        self.password_token = password_token
+
         messages.add_message(
-            self.request,
-            messages.SUCCESS,
-            _('An Email has been sent to your email address with link to reset password.')
+            request=self.request,
+            level=messages.SUCCESS,
+            message=_('An Email has been sent to your email address (%s) with '
+                      'verification code to reset the password.' % email_address),
+            extra_tags='page-level'
         )
         return redirect(self.get_success_url())
 
 
-# class ResetPasswordView(AnonymousRequiredMixin, CreateView):
-#     form_class = ResetPasswordForm
-#     template_name = "account/reset_password.html"
-#     model = PasswordResetToken
-#
-#     def get_success_url(self):
-#         return reverse_lazy('login')
-#
-#     def form_valid(self, form):
-#         cleaned_data = form.cleaned_data
-#         context = self.get_context_data(form=form)
-#         reset_code = self.kwargs['reset_code']
-#
-#         #check if passwords match
-#         if cleaned_data['password'] != cleaned_data['repeat_password']:
-#             form._errors['repeat_password'] = ErrorList([_("Given passwords do not match")])
-#             return self.render_to_response(context)
-#
-#         forgot_password = self.forgot_password
-#
-#         #all hunky-dory; change the password, set the flag
-#         user = User.objects.get(email=forgot_password.email)
-#         user.set_password(cleaned_data['password'])
-#         user.save()
-#         forgot_password.retrieved = True
-#         forgot_password.save()
-#         messages.add_message(
-#             self.request,
-#             messages.SUCCESS,
-#             _('Password for your account has been changed successfully, you may login now.')
-#         )
-#         return redirect(self.get_success_url())
-#
-#     def dispatch(self, request, *args, **kwargs):
-#         try:
-#             self.forgot_password = ForgotPassword.objects.get(
-#                 token=self.kwargs.get('reset_code', None),
-#                 retrieved=False)
-#             return super(ResetPasswordView, self).dispatch(request, *args, **kwargs)
-#         except ForgotPassword.DoesNotExist:
-#             messages.add_message(
-#                 request,
-#                 messages.ERROR,
-#                 _('Oops this password reset link has been used up.')
-#             )
-#             return redirect(reverse_lazy('login'))
+class ResetPasswordView(AnonymousRequiredMixin, FormView):
+    form_class = ResetPasswordForm
+    template_name = 'accounts/reset_password.html'
+    model = PasswordResetCode
+
+    def get_success_url(self):
+        return reverse_lazy('accounts_login')
+
+    def form_valid(self, form):
+        form_data = form.cleaned_data
+
+        try:
+            one_hour_ago = datetime.datetime.utcnow().replace(tzinfo=pytz.utc) - datetime.timedelta(hours=1)
+            password_token = PasswordResetCode.objects.get(
+                verification_code=form_data['verification_code'],
+                created_at__gt=one_hour_ago
+            )
+            owner = password_token.owner
+            owner.set_password(form_data['password'])
+            owner.save()
+            messages.add_message(
+                message=_('Your password has been successfully reset, you may login now.'),
+                level=messages.SUCCESS,
+                request=self.request,
+                extra_tags='page-level'
+            )
+            return redirect(self.get_success_url())
+        except PasswordResetCode.DoesNotExist:
+            form._errors['verification_code'] =\
+                ErrorList([_('The verification code does not match the one we sent you in Email.')])
+            context = self.get_context_data(form=form)
+            return self.render_to_response(context)

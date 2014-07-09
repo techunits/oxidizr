@@ -11,7 +11,7 @@ from django.contrib.contenttypes.models import ContentType
 from django.core import validators
 
 # Imports from custom apps
-from apps.common.utils import email, generate_random_string
+from apps.common.utils import email, generate_random_string, get_current_site
 
 
 class User(AbstractBaseUser):
@@ -154,11 +154,11 @@ class PasswordResetCode(models.Model):
 
     def save(self, *args, **kwargs):
         if not self.verification_code:
-            self.verification_code = generate_random_string(8).upper()
+            self.verification_code = generate_random_string(24).upper()
         super(PasswordResetCode, self).save(*args, **kwargs)
 
     def generate_token(self):
-        self.verification_code = generate_random_string(12).upper()
+        self.verification_code = generate_random_string(24).upper()
         self.save()
 
     def send_email(self, regenerate=False):
@@ -167,10 +167,14 @@ class PasswordResetCode(models.Model):
 
         context = dict(
             verification_code=self.verification_code,
-            first_name=self.owner.first_name
+            first_name=self.owner.first_name,
+            accounts_reset_password_link='http://%s%s' % (
+                get_current_site().domain,
+                reverse_lazy('accounts_reset_password', args=(self.id,))
+            )
         )
         email(
-            recipient=[self.email],
+            recipient=[self.owner.email],
             context=context,
             template_name='password_reset'
         )

@@ -1,6 +1,6 @@
 from django.conf.urls import patterns, url
 
-from .views import RegistrationView, LoginView, LogoutView, EmailVerificationView, ForgotPasswordView
+from .views import RegistrationView, LoginView, LogoutView, EmailVerificationView, ForgotPasswordView, ResetPasswordView
 
 urlpatterns = patterns(
     '',
@@ -9,6 +9,7 @@ urlpatterns = patterns(
     url(r'^logout/$', LogoutView.as_view(), name='accounts_logout'),
 
     url(r'^password/forgot/$', ForgotPasswordView.as_view(), name='accounts_forgot_password'),
+    url(r'^password/(?P<id>\d+)/reset/$', ResetPasswordView.as_view(), name='accounts_reset_password'),
 
     url(r'^email/(?P<id>\d+)/verify/$', EmailVerificationView.as_view(), name='accounts_email_verification'),
 )
