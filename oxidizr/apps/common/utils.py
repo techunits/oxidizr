@@ -8,6 +8,8 @@ from django.contrib.sites.models import Site
 from post_office import mail, PRIORITY
 from HTMLParser import HTMLParser
 
+from apps.projects.models import Project
+
 
 class MLStripper(HTMLParser):
     def __init__(self):
@@ -93,3 +95,12 @@ def get_client_ip(request):
     else:
         ip = request.META.get('REMOTE_ADDR')
     return ip
+
+
+class ProjectMiddleware(object):
+    @staticmethod
+    def process_request(request):
+        if request.user.is_authenticated() and 'default_project_id' in request.session:
+            request.project = Project.objects.get(id=request.session['default_project_id'], owner=request.user)
+        else:
+            request.project = None

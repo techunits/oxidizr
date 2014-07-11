@@ -1,0 +1,28 @@
+{% extends 'base_two_column.html' %}{% load i18n %}
+
+{% block page_header %}{% trans 'Projects' %}{% endblock page_header %}
+
+{% block main_content %}
+  <h3>{% trans 'Working on: ' %}{% if request.project %}{{ request.project }}{% else %}{% trans '-No project selected-' %}{% endif %}</h3>
+  <a href="{% url 'projects_manage' %}" class="btn btn-sm btn-primary">{% trans 'Manage projects' %}</a>
+  {% if projects.count %}
+    <table class="table table-bordered table-condensed table-hover">
+      <thead>
+        <tr>
+          <th>{% trans 'Project' %}</th>
+          <th>{% trans 'Options' %}</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for project in projects %}
+          <tr>
+            <td>{{ project.name }}</td>
+            <td><a href="{% url 'projects_set_default' project.id %}" class="btn btn-xs btn-default">{% trans 'Set default' %}</a></td>
+          </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  {% else %}
+    {% trans 'You have not created or joined any projects.' %}
+  {% endif %}
+{% endblock main_content %}
