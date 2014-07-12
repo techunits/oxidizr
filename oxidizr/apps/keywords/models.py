@@ -13,9 +13,11 @@ class BaseKeyword(models.Model):
     """
     term = models.CharField(max_length=60, blank=False, null=False, unique=True)
 
-    def clean_term(self):
-        term = self.cleaned_data['term']
-        return term.strip().lower().replace(',', '')
+    def __str__(self):
+        return '%s' % self.term
+
+    def __unicode__(self):
+        return u'%s' % self.term
 
 
 class KeywordSettings(object):
@@ -39,9 +41,18 @@ class Keyword(models.Model):
 
     The settings allow users to control how the keywords play in search filtering.
     """
-    keyword = models.ForeignKey('keywords.BaseKeyword', related_name='+')
-    affiliate = models.ForeignKey('affiliates.Affiliate', related_name='keywords')
+    base = models.ForeignKey('keywords.BaseKeyword', related_name='+')
+    project = models.ForeignKey('projects.Project', related_name='keywords')
 
     # This meta contains JSON encoded status for each application that needs keywords to filter search results
     # TODO: Allow keywords to be combined in search filter. Basically keyword dependencies.
     status_settings_meta = models.CharField(max_length=500, blank=True, null=True)
+
+    class Meta:
+        unique_together = ['base', 'project']
+
+    def __str__(self):
+        return '%s' % self.base.term
+
+    def __unicode__(self):
+        return u'%s' % self.base.term

@@ -58,4 +58,4 @@ docs/_build/
 collected/
 
 # Temporarily excluding migrations until I get some good overview of the model roadmap
-migrations/
+migrations

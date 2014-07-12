@@ -1,0 +1,36 @@
+{% extends 'base_two_column.html' %}{% load i18n %}
+
+{% block page_header %}{% trans 'Manage keywords' %}{% endblock page_header %}
+
+{% block main_content %}
+  {% if not request.project %}<div class="alert alert-warning">{% trans 'You have not selected any project as default. Keywords are set per project, thus we have nothing here' %}</div>{% endif %}
+  {% if keywords %}
+    <table class="table table-condensed table-hover">
+      <thead>
+        <tr>
+          <th>{% trans 'Keyword' %}</th>
+          <th>Twitter</th>
+          <th>Meetup</th>
+          <th>{% trans 'Web content' %}</th>
+          <th>{% trans 'Conversations' %}</th>
+          <th>{% trans 'Remove' %}</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for kw in keywords %}
+        <tr>
+          <td>{{ kw.base.term }}</td>
+          <td><i class="fa fa-check-square not-sel"></i></td>
+          <td><i class="fa fa-check-square not-sel"></i></td>
+          <td><i class="fa fa-check-square not-sel"></i></td>
+          <td><i class="fa fa-check-square not-sel"></i></td>
+          <td><a href="{% url 'keywords_delete' kw.id %}" class="btn btn-danger btn-xs" role="button" title="{% trans 'remove' %}"><i class="fa fa-times"></i></a></td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  {% else %}
+    {% trans 'No keywords to show.' %}
+  {% endif %}
+  <a href="{% url 'keywords_create' %}" class="btn btn-primary btn-sm">{% trans 'Add keyword' %}</a>
+{% endblock main_content %}

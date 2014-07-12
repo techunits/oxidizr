@@ -1,0 +1,7 @@
+{% extends 'base_two_column.html' %}{% load i18n %}{% load crispy_forms_tags %}
+
+{% block page_header %}{% trans 'Add keyword' %}{% endblock page_header %}
+
+{% block main_content %}
+  {% crispy form %}
+{% endblock main_content %}
