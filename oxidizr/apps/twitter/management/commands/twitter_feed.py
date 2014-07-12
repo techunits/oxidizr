@@ -5,19 +5,21 @@ from django.core.management.base import BaseCommand, CommandError
 from django.conf import settings
 from django.db.utils import IntegrityError
 
-from apps.twitter.models import Keyword, Tweet, Account
+from apps.keywords.models import BaseKeyword
+from apps.twitter.models import Tweet, Account
 
 
 class Command(BaseCommand):
     def handle(self, *args, **options):
-        if not Keyword.objects.count():
-            raise CommandError("Please specify some keywords in the admin for Twitter feed to work")
-        keywords = ','.join([k['term'] for k in Keyword.objects.values('term')])
+        if not BaseKeyword.objects.count():
+            raise CommandError('No keywords found!')
+        keywords = ','.join([k['term'] for k in BaseKeyword.objects.values('term')])
         twitter_stream = TwitterStream(auth=OAuth(
             token=settings.TWITTER_TOKEN,
             token_secret=settings.TWITTER_TOKEN_SECRET,
             consumer_key=settings.TWITTER_CONSUMER_KEY,
-            consumer_secret=settings.TWITTER_CONSUMER_SECRET))
+            consumer_secret=settings.TWITTER_CONSUMER_SECRET)
+        )
         stream = twitter_stream.statuses.filter(track=keywords)
 
         for tweet in stream:
@@ -70,17 +72,20 @@ class Command(BaseCommand):
                             mention = Account.objects.get(twitter_id=user['id_str'])
                         mentions.append(mention)
 
-                try:
-                    (tw, created) = Tweet.objects.get_or_create(
+                # try:
+                tw, created = Tweet.objects.get_or_create(
+                    tweet_id=tweet['id_str'],
+                    defaults=dict(
                         author=author,
                         text=tweet['text'],
-                        tweet_id=tweet['id_str'],
                         created_at=parser.parse(tweet['created_at']),
                         favorite_count=tweet['favorite_count'],
                         retweet_count=tweet['retweet_count']
                     )
-                except IntegrityError:
-                    tw = Tweet.objects.get(tweet_id=tweet['id_str'])
+                )
+                # except IntegrityError:
+                #     tw = Tweet.objects.get(tweet_id=tweet['id_str'])
+
                 for user in mentions:
                     tw.mentions.add(user)
             else:

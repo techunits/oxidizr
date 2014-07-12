@@ -24,6 +24,11 @@ def get_weight(follower_count=1, following_count=1, status_count=1, listed_in_co
 
 
 class Tweet(models.Model):
+    """
+    We store all incoming tweets that match any keyword in our `keywords.BaseKeyword` model,
+    regardless of who added the keyword. We filter our the tweets per project later in
+     the `twitter.TweetPerProject` model.
+    """
     author = models.ForeignKey('twitter.Account', blank=False, related_name='statuses')
 
     text = models.CharField(max_length=254, blank=False, null=False)
@@ -36,7 +41,9 @@ class Tweet(models.Model):
 
     weight = models.PositiveIntegerField(default=0)
 
-    created_at = models.DateTimeField(blank=False, null=False)
+    created_at = models.DateTimeField(blank=False, null=False)  # Passed in from Twitter, not our own
+
+    projects = models.ManyToManyField('projects.Project', through='twitter.TweetPerProject')
 
     def view_tweet(self):
         return '<a href="https://twitter.com/%s/statuses/%s" target="_blank">View</a>' %\
@@ -78,3 +85,16 @@ class Account(models.Model):
         return get_weight(self.follower_count, self.following_count,
                           self.status_count, self.listed_in_count, self.is_verified)
     get_weight.short_description = 'Weight'
+
+
+class TweetPerProject(models.Model):
+    """
+    We sort of tweet for each project here. This is simply a mapping of tweets to project.
+    This model is filled in asynchronously with background worked.
+    """
+    # TODO: write background job to fill this is
+    tweet = models.ForeignKey('twitter.Tweet', blank=False, null=False)
+    project = models.ForeignKey('projects.Project', blank=False, null=False)
+
+    # Weight of a tweet will most probably vary for projects, depending on weight of keywords or other settings.
+    weight = models.PositiveIntegerField(default=0)
