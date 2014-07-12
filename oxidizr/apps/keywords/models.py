@@ -44,7 +44,11 @@ class Keyword(models.Model):
     base = models.ForeignKey('keywords.BaseKeyword', related_name='+')
     project = models.ForeignKey('projects.Project', related_name='keywords')
 
+    # What is the importance of this keyword to this project, more means higher importance.
+    weight = models.PositiveIntegerField(default=0)
+
     # This meta contains JSON encoded status for each application that needs keywords to filter search results
+    # TODO: Parse this in the management commands for twitter, meetup, etc.
     # TODO: Allow keywords to be combined in search filter. Basically keyword dependencies.
     status_settings_meta = models.CharField(max_length=500, blank=True, null=True)
 
