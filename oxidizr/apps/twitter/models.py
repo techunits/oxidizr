@@ -1,7 +1,7 @@
 import math
 
 from django.db import models
-from django.conf import settings
+from django.utils.translation import ugettext_lazy as _
 
 
 def get_weight(follower_count=1, following_count=1, status_count=1, listed_in_count=1, is_verified=False):
@@ -43,7 +43,7 @@ class Tweet(models.Model):
 
     created_at = models.DateTimeField(blank=False, null=False)  # Passed in from Twitter, not our own
 
-    projects = models.ManyToManyField('projects.Project', through='twitter.TweetPerProject')
+    projects = models.ManyToManyField('projects.Project', through='twitter.TweetPerProject', related_name='tweets')
 
     def view_tweet(self):
         return '<a href="https://twitter.com/%s/statuses/%s" target="_blank">View</a>' %\
@@ -85,6 +85,22 @@ class Account(models.Model):
         return get_weight(self.follower_count, self.following_count,
                           self.status_count, self.listed_in_count, self.is_verified)
     get_weight.short_description = 'Weight'
+
+
+class APIKey(models.Model):
+    """
+    This model stores the Twitter OAuth access token, secret etc. for each project.
+    To create on for any project, simply head over to https://apps.twitter.com/
+    Create a new app and then generate access token. Frontend Oxidizr app has clear instructions.
+    """
+    project = models.OneToOneField('projects.Project', blank=False, null=False, related_name='twitter_api_key')
+
+    api_key = models.CharField(_('API key'), max_length=250, blank=False, null=False)
+    api_secret = models.CharField(_('API secret'), max_length=250, blank=False, null=False)
+    consumer_key = models.CharField(_('Access token'), max_length=250, blank=False, null=False)
+    consumer_secret = models.CharField(_('Access token secret'), max_length=250, blank=False, null=False)
+
+    created_at = models.DateTimeField(auto_now_add=True)
 
 
 class TweetPerProject(models.Model):

@@ -4,6 +4,8 @@ import string
 import django
 from django.conf import settings
 from django.contrib.sites.models import Site
+from django.utils.translation import ugettext_lazy as _
+from django.contrib import messages
 
 from post_office import mail, PRIORITY
 from HTMLParser import HTMLParser
@@ -104,3 +106,22 @@ class ProjectMiddleware(object):
             request.project = Project.objects.get(id=request.session['default_project_id'], owner=request.user)
         else:
             request.project = None
+
+
+def not_logged_in_error_message(request, message=_('Sorry you will have to login.')):
+    messages.add_message(
+        message=message,
+        level=messages.ERROR,
+        request=request,
+        extra_tags='danger page-level'
+    )
+
+
+def project_not_set_error_message(request, message=_('Sorry, you need a project to proceed.'
+                                                     ' Did you set a default project?')):
+    messages.add_message(
+        message=message,
+        level=messages.ERROR,
+        request=request,
+        extra_tags='danger page-level'
+    )

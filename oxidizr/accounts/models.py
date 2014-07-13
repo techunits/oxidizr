@@ -36,7 +36,6 @@ class User(AbstractBaseUser):
         db_index=True,
         unique=True,
         help_text=_("Required, please use your personal Email Address"))
-    date_of_birth = models.DateField(blank=True, null=True)
 
     # Status checks
     is_staff = models.BooleanField(

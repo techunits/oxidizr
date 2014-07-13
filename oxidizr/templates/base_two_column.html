@@ -6,10 +6,12 @@
     <div class="col-lg-2">
       <ul class="nav nav-sidebar">
         <li class="active"><a href="#">Dashboard</a></li>
-        <li class="active"><a href="#">Keywords</a></li>
-        <li><a href="#">Twitter</a></li>
-        <li><a href="#">Meetup</a></li>
-        <li><a href="#">Web Content</a></li>
+        <li><a href="{% url 'projects_index' %}">Projects</a></li>
+        <li><a href="{% url 'keywords_index' %}">Keywords</a></li>
+        <li><a href="{% url 'twitter_index' %}">Twitter</a></li>
+        <li><a href="{% url 'meetup_index' %}">Meetup</a></li>
+        <li><a href="{% url 'content_index' %}">Web Content</a></li>
+        <li><a href="{% url 'websites_index' %}">Websites</a></li>
       </ul>
     </div>
     <div class="col-lg-10 col-main">

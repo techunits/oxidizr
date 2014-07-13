@@ -1,0 +1,29 @@
+{% extends 'base_two_column.html' %}{% load i18n %}{% load crispy_forms_tags %}
+
+{% block page_header %}{% trans 'Add Twitter API keys' %}{% endblock page_header %}
+
+{% block main_content %}
+  <div class="panel panel-info">
+    <div class="panel-heading">
+      <div class="panel-title">{% trans 'Instructions to generate Twitter API keys' %}</div>
+    </div>
+    <div class="panel-body">
+      <ol>
+        <li>{% trans 'Visit the Twitter Application Management page at:' %} <a href="https://apps.twitter.com/" target="_blank">https://apps.twitter.com/</a></li>
+        <li>{% trans 'Use the <b>Create New App</b> button to create an app for project.' %}</li>
+        <li>{% trans 'In <b>Create an application</b> form you may use the following details:' %}
+          <ul>
+            <li><strong>{% trans 'Name' %}</strong>: Oxidizr</li>
+            <li><strong>{% trans 'Description' %}</strong>: Oxidizr</li>
+            <li><strong>{% trans 'Website' %}</strong>: http://oxidizr.com/</li>
+          </ul>
+        </li>
+        <li>{% trans 'Review the <b>Developer Rules of the Road</b> and agree if you want to, then save the form.' %}</li>
+        <li>{% trans 'Once application is created, select it and proceed to the tab <b>API Keys</b>' %}</li>
+        <li>{% trans 'If you do not see any tokens under <b>Your access token</b> then simply use the <b>Create my access token</b> button to generate. It may take some time, be patient.' %}</li>
+        <li>{% trans 'Use the details to fill the following form. The labels on the fields match those on the Twitter <b>API Keys</b> tab.' %}</li>
+      </ol>
+    </div>
+  </div>
+  {% crispy form %}
+{% endblock main_content %}

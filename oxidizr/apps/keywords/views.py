@@ -10,6 +10,7 @@ from django.db.utils import IntegrityError
 from braces.views import LoginRequiredMixin, JSONResponseMixin, UserPassesTestMixin
 
 # Imports from our custom apps
+from apps.common.utils import not_logged_in_error_message, project_not_set_error_message
 
 # Explicit imports from this app
 from .models import BaseKeyword, Keyword
@@ -44,13 +45,12 @@ class KeywordCreateView(LoginRequiredMixin, UserPassesTestMixin, FormView):
         return False
 
     def get_login_url(self):
+        if not self.request.user.is_authenticated():
+            not_logged_in_error_message(self.request)
+            return reverse_lazy('accounts_login')
         if not self.request.project:
-            messages.add_message(
-                message=_('Sorry, you need a project to add keywords. Did you set a default project?'),
-                level=messages.ERROR,
-                request=self.request,
-                extra_tags='danger page-level'
-            )
+            project_not_set_error_message(self.request)
+            return reverse_lazy('projects_index')
 
     def form_valid(self, form):
         base, created = BaseKeyword.objects.get_or_create(term=form.cleaned_data['term'])

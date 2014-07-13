@@ -35,6 +35,7 @@
         <div class="navbar-collapse collapse">
           {% if request.user.is_authenticated %}
           <ul class="nav navbar-nav navbar-right">
+            {% if request.project %}<li><a href="{% url 'projects_index' %}">{{ request.project }}</a></li>{% endif %}
             <li><a href="#"><i class="fa fa-gear"></i></a></li>
             <li><a href="{% url 'accounts_logout' %}"><i class="fa fa-sign-out"></i></a></li>
           </ul>

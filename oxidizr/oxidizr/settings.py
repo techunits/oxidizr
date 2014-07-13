@@ -54,7 +54,7 @@ INSTALLED_APPS = (
     'apps.websites',
     'apps.content',
     'apps.twitter',
-    'apps.affiliates',
+    'apps.projects',
 )
 
 MIDDLEWARE_CLASSES = (
@@ -64,6 +64,7 @@ MIDDLEWARE_CLASSES = (
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
+    'apps.common.utils.ProjectMiddleware'
 )
 
 TEMPLATE_CONTEXT_PROCESSORS = (
@@ -106,6 +107,56 @@ USE_I18N = True
 USE_L10N = True
 
 USE_TZ = True
+
+DEBUG_LOG_FILE = '/tmp/oxidizr.log'
+LOGGING = {
+    'version': 1,
+    'disable_existing_loggers': True,
+    'filters': {
+        'require_debug_false': {
+            '()': 'django.utils.log.RequireDebugFalse'
+        }
+    },
+    'handlers': {
+        'console': {
+            'level': 'INFO',
+            'class': 'logging.StreamHandler',
+        },
+        'null': {
+            'class': 'django.utils.log.NullHandler',
+        },
+        'mail_admins': {
+            'level': 'DEBUG',
+            'filters': ['require_debug_false'],
+            'class': 'django.utils.log.AdminEmailHandler',
+            'include_html': False,
+            'email_backend': 'djrill.mail.backends.djrill.DjrillBackend'
+        },
+        'file': {
+            'level': 'DEBUG',
+            'class': 'logging.FileHandler',
+            'filename': DEBUG_LOG_FILE,
+        },
+    },
+    'loggers': {
+        'django': {
+            'handlers': ['file'],
+        },
+        'django.request': {
+            'handlers': ['file'],
+            'level': 'DEBUG',
+            'propagate': False,
+        },
+        'django.security': {
+            'handlers': ['file'],
+            'level': 'DEBUG',
+            'propagate': False,
+        },
+        'py.warnings': {
+            'handlers': ['file'],
+        },
+    }
+}
 
 TEMPLATE_DIRS = (
     # Don't forget to use absolute paths, not relative paths.
