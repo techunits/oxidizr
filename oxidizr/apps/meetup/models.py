@@ -1,10 +1,6 @@
 from django.db import models
 
 
-class Keyword(models.Model):
-    term = models.CharField(max_length=50, blank=False, null=False)
-
-
 class Event(models.Model):
     event_id = models.CharField(max_length=40, unique=True)
     name = models.CharField(max_length=300, blank=False, null=False)

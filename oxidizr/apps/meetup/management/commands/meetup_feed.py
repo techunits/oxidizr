@@ -4,12 +4,11 @@ import sys
 from datetime import datetime
 import pytz
 
-
 from django.core.management.base import BaseCommand, CommandError
 from django.db.utils import IntegrityError
 
-from apps.meetup.models import Keyword, Event
-from apps.common import helpers
+from apps.meetup.models import Event
+from apps.common.utils import strip_tags
 
 
 class Command(BaseCommand):
@@ -26,7 +25,7 @@ class Command(BaseCommand):
                     )
                     if 'description' in event:
                         # print 'Description', event['description'][:100]
-                        kwargs['description'] = helpers.strip_tags(event['description'])
+                        kwargs['description'] = strip_tags(event['description'])
                     print 'URL', event['event_url']
                     print 'Name', event['name']
 

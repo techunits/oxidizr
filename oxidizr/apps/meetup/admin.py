@@ -1,6 +1,6 @@
 from django.contrib import admin
 
-from .models import Keyword, Event
+from .models import Event
 
 
-admin.site.register([Keyword, Event])
+admin.site.register([Event])
