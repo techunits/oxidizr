@@ -25,9 +25,9 @@ def get_weight(follower_count=1, following_count=1, status_count=1, listed_in_co
 
 class Tweet(models.Model):
     """
-    We store all incoming tweets that match any keyword in our `keywords.BaseKeyword` model,
-    regardless of who added the keyword. We filter our the tweets per project later in
-     the `twitter.TweetPerProject` model.
+    We store all incoming tweets that match any keyword in our `keywords.Keyword` model,
+    regardless of who added the keyword, as long as it is enabled for Twitter.
+    We filter out the tweets per project in the `twitter.TweetPerProject` model.
     """
     author = models.ForeignKey('twitter.Account', blank=False, related_name='statuses')
 
@@ -105,12 +105,11 @@ class APIKey(models.Model):
 
 class TweetPerProject(models.Model):
     """
-    We sort of tweet for each project here. This is simply a mapping of tweets to project.
-    This model is filled in asynchronously with background worked.
+    This model is the through table for relation between `twitter.Tweet` and `keywords.Keyword`.
     """
     # TODO: write background job to fill this is
     tweet = models.ForeignKey('twitter.Tweet', blank=False, null=False)
     project = models.ForeignKey('projects.Project', blank=False, null=False)
 
-    # Weight of a tweet will most probably vary for projects, depending on weight of keywords or other settings.
+    # Weight of a tweet will vary for each project, depending on weight of keywords or other factors.
     weight = models.PositiveIntegerField(default=0)
