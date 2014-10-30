@@ -24,7 +24,7 @@ DEBUG = True
 
 TEMPLATE_DEBUG = True
 
-ALLOWED_HOSTS = ['oxidizr.com', 'oxr.local']
+ALLOWED_HOSTS = ['oxidizr.com', 'oxr.local', 'localhost']
 
 
 # Application definition

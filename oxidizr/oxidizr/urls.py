@@ -5,7 +5,6 @@ from django.contrib.auth.decorators import login_required
 
 from apps.common.views import HomePageView
 
-
 admin.autodiscover()
 
 urlpatterns = patterns(
