@@ -8,6 +8,7 @@ distribute==0.6.34
 django-braces==1.4.0
 django-grappelli==2.5.3
 django-post-office==0.8.4
+django-crispy-forms==1.5.0
 gevent==1.0.1
 greenlet==0.4.2
 jsonfield==0.9.20
