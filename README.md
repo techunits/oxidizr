@@ -31,6 +31,7 @@ Setup Guide (Ubuntu 14.04 LTS)
 -----------
 * Install Virtualenv for Python
 ```
+$ sudo apt-get install python-pip libpq-dev python-dev postgresql
 $ sudo pip install virtualenv
 ```
 
